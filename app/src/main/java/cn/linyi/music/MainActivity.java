@@ -235,9 +235,5 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         }
     };
 
-    public void download(View view) {
-        Intent intent = new Intent(this,DownloadService.class);
-        startService(intent);
-    }
 }
 
