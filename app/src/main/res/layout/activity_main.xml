@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="cn.linyi.music.MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="音乐播放器"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/curmusic"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:textAlignment="gravity"
+        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/curtime"
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        android:gravity="right"
+        />
+    <SeekBar
+        android:id="@+id/progress"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        android:gravity="left"
+        />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        >
+        <Button
+            android:text="扫描本地歌曲"
+            android:onClick="scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    <ImageButton
+        android:id="@+id/previous"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/previous"
+        android:onClick="previous"/>
+    <ImageButton
+        android:id="@+id/play"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/play"
+        android:onClick="play"/>
+        <ImageButton
+            android:id="@+id/next"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/next"
+            android:onClick="next"/>
+        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+    <Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="DOWNLOADTEST" android:onClick="download"/>
+
+        <FrameLayout
+            android:id="@+id/fragment_songs_list"
+            android:layout_width="match_parent"
+            android:layout_height="150dp">
+        </FrameLayout>
+
+
+        <ListView
+            android:id="@+id/musicView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </ListView>
+
+    </LinearLayout>
+
+</LinearLayout>

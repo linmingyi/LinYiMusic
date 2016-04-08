@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context="cn.linyi.fragmentpagescroll.MusicMainActivity">
+    <LinearLayout
+        android:id="@+id/music_main_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_margin="0dp"
+            android:layout_width="@dimen/activity_songs_btn_width"
+            android:layout_height="@dimen/activity_songs_btn_height"/>
+        <TextView
+            android:layout_width="@dimen/activity_songs_title_width"
+            android:layout_height="@dimen/activity_songs_btn_height" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end">
+            <ImageButton
+                android:layout_margin="12dp"
+                android:layout_width="@dimen/activity_songs_btn_width"
+                android:layout_height="@dimen/activity_songs_btn_height" />
+        </LinearLayout>
+    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/music_lrc_pic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/music_main_top">
+    </FrameLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        >
+        <LinearLayout
+            android:id="@+id/music_progress"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"> <!--子类控件居中-->
+            <TextView
+                android:id="@+id/curtime"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:gravity="start"
+                />
+            <SeekBar
+                android:id="@+id/progress"
+                android:layout_width="270dp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:gravity="end"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/music_progress">
+            <ImageButton
+
+                android:src="@drawable/desk_loop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageButton
+                android:src="@drawable/desk_pre_prs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageButton
+                android:src="@drawable/desk_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageButton
+                android:src="@drawable/desk_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageButton
+                android:src="@drawable/list_icn_mng_dis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>
