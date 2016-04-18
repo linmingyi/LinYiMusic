@@ -33,7 +33,7 @@ public class MusicDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String sql = "create table music (_id integer primary key autoincrement,title text," +
                 "album text,artist text,path text,progress integer,position integer)";
-        Log.i("LIN", "table MUSIC..is created");
+       // Log.i("LIN", "table MUSIC..is created");
         db.execSQL(sql);///竟然忘了执行 我也是醉了
 
         //建立表之前先插入一条空记录 用于记录退出时的播放信息，position为歌曲在整个播放列表的位置

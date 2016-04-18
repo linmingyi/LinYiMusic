@@ -55,6 +55,11 @@
             android:onClick="scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+        <Button
+            android:text="当前播放列表"
+            android:onClick="musicList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     <ImageButton
         android:id="@+id/previous"
         android:layout_width="70dp"
@@ -95,9 +100,14 @@
             android:id="@+id/musicView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
         </ListView>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/musicMain_buttom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

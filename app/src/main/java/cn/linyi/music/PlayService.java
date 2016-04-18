@@ -16,6 +16,7 @@ import java.util.List;
 
 import cn.linyi.music.Dao.MusicDao;
 import cn.linyi.music.bean.Music;
+import cn.linyi.music.util.Global;
 import cn.linyi.music.util.MP3Info;
 
 
@@ -25,8 +26,7 @@ public class PlayService extends Service {
 
     private MediaPlayer mediaplayer;
     private boolean isplaying = false;
-    private List<Music> localMusicList = null;
-    private List<Music> onlineMusicList =null;
+    private List<Music> musicList;
     private int musicType = LOCAL_MUSIC;
     private int current=0;
 
@@ -42,10 +42,6 @@ public class PlayService extends Service {
     public static final int LOCAL_MUSIC = 1;
     public static final int ONLINE_MUSIC = 2;
 
-
-
-
-
     public PlayService() {
     }
 
@@ -59,7 +55,7 @@ public class PlayService extends Service {
         }
 
         public  List<Music> getMusicList(){
-            return localMusicList;
+            return musicList;
         }
 
         public boolean isplaying(){
@@ -67,7 +63,7 @@ public class PlayService extends Service {
         }
 
         public  String getCurMusic(){
-            return localMusicList.get(current).getTitle();
+            return musicList.get(current).getTitle();
         }
     }
 
@@ -75,9 +71,16 @@ public class PlayService extends Service {
     public void onCreate() {
         Log.i("LIN","service on creat");
         super.onCreate();
+        init();
+    }
+
+    //初始化 mediaPlayer
+    private void init(){
         musicDao = new MusicDao(this);
-        Log.i("LIN", getFilesDir().getPath() + "数据库地址0");
-        localMusicList = findAllMp3();
+        //   Log.i("LIN", getFilesDir().getPath() + "数据库地址0");
+        musicList = findAllMp3();
+        ((Global)getApplicationContext()).setLocalMusicList(musicList);
+        ((Global)getApplicationContext()).setCurrMusicList(musicList);
         Music m = getLastMusic();
         //position为music 在播放列表中的位置
         current = m.getPosition();
@@ -97,25 +100,29 @@ public class PlayService extends Service {
             public void onCompletion(MediaPlayer mp) {
                 if (!mediaplayer.isPlaying()) {
                     Log.i("LIN", mediaplayer.isPlaying() + "isplaying");
-                    current = (++current) % localMusicList.size();
+                    current = (++current) % musicList.size();
                     Log.i("LIN", current + "   current");
                     play(current);
                     Log.i("LIN", mediaplayer.isPlaying() + "isplaying");
                 }
             }
         });
-
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("LIN","service on startcommand");
         int action = intent.getIntExtra("action",-1);
         musicType = intent.getIntExtra("musicType",-1);
-        Log.i("LIN","MUsictype\n"+musicType);
+        Log.i("LIN", "MUsictype\n" + musicType);
         if(musicType == ONLINE_MUSIC) {
-            onlineMusicList = ((MusicList)getApplicationContext()).getOnlineMusicList();
+            musicList = Global.getOnlineMusicList();
             Log.i("LIN","ONLINE music play");
+        } else  if (musicType == LOCAL_MUSIC) {
+            musicList =  Global.getLocalMusicList();
         }
+        Global.setCurrMusicList(musicList);
+        Log.i("YI",musicList.size()+"   "+musicList.get(0).getTitle());
         musicPlay(action, intent);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -135,13 +142,13 @@ public class PlayService extends Service {
                 break;
             //下一首
             case NEXT_SONG:
-                current = (++current)%localMusicList.size();
+                current = (++current)%musicList.size();
                 Log.i("LIN",current+"   current");
                 play(current);
                 break;
             //上一首
             case PREVIOUS_SONG:
-                current = (--current+localMusicList.size())%localMusicList.size();
+                current = (--current+musicList.size())%musicList.size();
                 Log.i("LIN",current+"   current");
                 play(current);
                 break;
@@ -189,22 +196,7 @@ public class PlayService extends Service {
 
     //获取音乐地址
     private String getPath(int i) {
-        String path = "";
-       switch (musicType) {
-           case LOCAL_MUSIC:
-               Log.i("LIN","PATH:\n"+localMusicList.get(i).getPath());
-              path = localMusicList.get(i).getPath();
-               break;
-           case ONLINE_MUSIC:
-               Log.i("LIN","PATH:\n"+onlineMusicList.get(i).getPath());
-               path =  onlineMusicList.get(i).getPath();
-               break;
-           default:
-               path = localMusicList.get(i).getPath();
-               break;
-       }
-        Log.i("LIN","PATH:::::"+path);
-        return path;
+        return musicList.get(i).getPath();
     }
 
 
@@ -253,15 +245,14 @@ public class PlayService extends Service {
         }
     }
 
-
     @Override
     public boolean onUnbind(Intent intent) {
         Log.i("LIN","解除绑定");
         Log.i("LIN","service on Unbind");
-        Music music = localMusicList.get(current);
+        Music music = musicList.get(current);
         music.setProgress(mediaplayer.getCurrentPosition());
         mediaplayer.stop();
-        musicDao.updateData(1, current, music.getProgress());
+        musicDao.updateData(1, current, music.getProgress(),music.getPath());
 
         Log.i("LIN", "最后一首是" + current + music.getTitle() + "播放进度是" + music.getProgress());
         mediaplayer.release();

@@ -25,6 +25,7 @@ public class MP3Info {
 
         String path = file.getPath();
         music.setPath(path);
+        Log.i("YI",path+"________");
         String title = path.substring(path.lastIndexOf(File.separator)+1,path.lastIndexOf(".mp3"));
         System.out.println("NAMENAMENAME:    "+title);
         music.setTitle(title);

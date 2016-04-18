@@ -20,10 +20,10 @@ public class MusicDao {
 
     public MusicDao(Context context){
         helper = new MusicDBHelper(context);
-        Log.i("LIN",context.getFilesDir().getPath()+"数据库地址1");
-        Log.i("LIN",helper.toString());
+//        Log.i("LIN",context.getFilesDir().getPath()+"数据库地址1");
+//        Log.i("LIN",helper.toString());
         this.db= helper.getWritableDatabase();
-        Log.i("LIN",db.getPath()+db.getVersion());
+//        Log.i("LIN",db.getPath()+db.getVersion());
     }
 
     /**
@@ -40,8 +40,8 @@ public class MusicDao {
     public void insertData(Music music){
         String sql ="insert into music(title,album,artist,path,progress) values(?,?,?,?,?)";
         db.execSQL(sql,new Object[]{music.getTitle(),music.getAlbum(),music.getArtist(),music.getPath(),music.getProgress()});
-        List<Music>   musiclist = findAll();
-        Log.i("LIN", "findALL title:" + musiclist.size());
+       // List<Music>   musiclist = findAll();
+       // Log.i("LIN", "findALL title:" + musiclist.size());
     }
 
     public  void insertData(List<Music> musiclist){
@@ -51,10 +51,8 @@ public class MusicDao {
             insertData(music);
                /* db.execSQL(sql, new Object[]{music.getTitle(), music.getAlbum(), music.getArtist(), music.getPath(), music.getProgress()});*/
             musiclist = findAll();
-            Log.i("LIN", "findALL title:" + musiclist.size());
-            Log.i("LIN", "music title" + music.getTitle());
-
-
+//            Log.i("LIN", "findALL title:" + musiclist.size());
+//            Log.i("LIN", "music title" + music.getTitle());
         }
         db.setTransactionSuccessful();
         db.endTransaction();
@@ -69,18 +67,19 @@ public class MusicDao {
         db.execSQL(sql,new Object[]{music.getTitle(),music.getAlbum(),music.getArtist(),music.getPath(),music.getId()});
     }
 
-    public void updateData(int id,int position,int progress){
-        String sql ="update music set position=?,progress=? where _id=?";
-        db.execSQL(sql,new Object[]{position,progress,id});
+    //用于更新数据库ID为0的记录 用于记录用户上一次退出时的播放信息
+    public void updateData(int id,int position,int progress,String path){
+        String sql ="update music set position=?,progress=?,path=? where _id=?";
+        db.execSQL(sql,new Object[]{position,progress,path,id});
     }
 
     public  List<Music> findAll(){
         List<Music> musicList = new ArrayList<Music>();
         String sql = "select * from music where _id>?";
         Cursor c= db.rawQuery(sql,new String[]{"1"});
+        c.moveToFirst();
         Log.i("LIN","CURSOR"+c.getCount());
         musicList = CursorToList(c,musicList);
-
         return musicList;
     }
 

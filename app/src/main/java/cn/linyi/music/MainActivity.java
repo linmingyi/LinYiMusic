@@ -8,7 +8,9 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -20,14 +22,13 @@ import java.util.TimerTask;
 import android.os.Handler;
 import cn.linyi.music.bean.Music;
 import cn.linyi.music.fragment.Fragment_songs_list;
+import cn.linyi.music.util.Global;
 import cn.linyi.music.util.MusicAdapter;
 
 public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener,AdapterView.OnItemClickListener{
-    private boolean isstop = false;//activity界面运行
+
     ServiceConnection sc;
     private Handler handler = null;
-
-    private boolean isContinue = false;//继续播放
     private ImageButton imageButton;
     private SeekBar progress;
     private TextView curtime;
@@ -37,10 +38,15 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private List<Music> musicList = null;
 
 
+    private MusicListActivity musicListActivity;//当前播放列表
+
     private Intent service;
     private Timer mTimer;
     private TimerTask mTimerTask;
     private PlayService.MyBinder mb;
+
+    private boolean isstop = false;//activity界面运行
+    private boolean isContinue = false;//继续播放
     private boolean isChanging = false;//互斥变量，防止定时器与SeekBar拖动时进度冲突
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         setContentView(R.layout.activity_main);
         service = new Intent("myservice");
         service.setPackage("cn.linyi.service_01");
-        ((MusicList)getApplicationContext()).setPlayService(service);//设置全局变量 以保证全局只有一个service 实例
+        ((Global)getApplicationContext()).setPlayService(service);//设置全局变量 以保证全局只有一个IntentService 实例
         handler = new Handler();
         findViews();
         progress.setOnSeekBarChangeListener(this);
@@ -80,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                     }
                 };
                 mTimer.schedule(mTimerTask, 0, 10);
-
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {
@@ -139,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
     public void previous(View view) {
 
-        service.putExtra("action",  PlayService.PREVIOUS_SONG);
+        service.putExtra("action", PlayService.PREVIOUS_SONG);
         startService(service);
         handler.post(runnableUi);
         // progress.setMax(mb.getDuration());//定义进度条最大长度
@@ -170,12 +175,11 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         stopService(service);
     }
 
+    //显示本地音乐列表
     public void scan(View view) {
-       // startService(service);
-        musicList = mb.getMusicList();
-        MusicAdapter adapter = new MusicAdapter(this,musicList);
+        MusicAdapter adapter = new MusicAdapter(this,((Global)getApplicationContext()).getLocalMusicList());
         musicView.setAdapter(adapter);
-        musicView.setOnItemClickListener(this);
+        musicView.setOnItemClickListener(this);//设置的时机很重要ok
     }
 
     //SeekbarLinsen
@@ -192,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         service.putExtra("seekmsec", seekBar.getProgress());
-        service.putExtra("action",  PlayService.SEEKBAR_CHANG);
+        service.putExtra("action", PlayService.SEEKBAR_CHANG);
         startService(service);
         isChanging = false;
     }
@@ -203,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         service.putExtra("current", position);
         Log.i("LIN", "MAINLIST" + position);
         service.putExtra("musicType", PlayService.LOCAL_MUSIC);
-        if(((MusicList)getApplicationContext()).getPlayService().getIntExtra("musicType",-1) == 1){
+        if(((Global)getApplicationContext()).getPlayService().getIntExtra("musicType",-1) == 1){
             Log.i("LIN","用的是一个实例 引用");
         }else{
             Log.i("LIN","用的不是一个实例 引用");
@@ -215,25 +219,36 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
 
     Runnable runnableUi = new Runnable() {
-        @Override
-        public void run() {
-            curtime.setText(getMusicTime(mb.getProgress()));
-            if (!curmusic.getText().equals(mb.getCurMusic())) {
-                curmusic.setText(mb.getCurMusic());
+            @Override
+            public void run() {
+                curtime.setText(getMusicTime(mb.getProgress()));
+                if (!curmusic.getText().equals(mb.getCurMusic())) {
+                    curmusic.setText(mb.getCurMusic());
 
+                }
+
+                if (!duration.getText().equals(getMusicTime(mb.getDuration()))) {
+                    progress.setMax(mb.getDuration());
+                    duration.setText(getMusicTime(mb.getDuration()));
+                    Log.i("LIN", duration.getText() + " ");
+                }
+                if (mb.isplaying()) {
+                    imageButton.setImageDrawable(getResources().getDrawable(R.drawable.pasue));
+                } else
+                    imageButton.setImageDrawable(getResources().getDrawable(R.drawable.play));
             }
+        };
 
-            if (!duration.getText().equals(getMusicTime(mb.getDuration()))) {
-                progress.setMax(mb.getDuration());
-                duration.setText(getMusicTime(mb.getDuration()));
-                Log.i("LIN", duration.getText() + " ");
-            }
-            if (mb.isplaying()) {
-                imageButton.setImageDrawable(getResources().getDrawable(R.drawable.pasue));
-            } else
-                imageButton.setImageDrawable(getResources().getDrawable(R.drawable.play));
-        }
-    };
+    public void musicList(View view) {
+        musicListActivity = new MusicListActivity(this);
+        musicListActivity.updateMusicList(((Global) getApplicationContext()).getCurrMusicList());
+        musicListActivity.showAtLocation(this.findViewById(R.id.musicMain_buttom),
+                Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,0);//vity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0); //
+        WindowManager.LayoutParams params=this.getWindow().getAttributes();
+        params.alpha=0.7f;
+        this.getWindow().setAttributes(params);
+        Log.i("YI","已经点击了显示了");
 
+    }
 }
 

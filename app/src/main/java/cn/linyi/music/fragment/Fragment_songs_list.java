@@ -16,7 +16,6 @@ import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.linyi.music.MusicList;
+import cn.linyi.music.util.Global;
 import cn.linyi.music.PlayService;
 import cn.linyi.music.R;
 import cn.linyi.music.bean.Music;
@@ -53,13 +52,13 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
         new JsonText().execute(stringUrl);
         Log.i("LIN", stringUrl);
         activity = getActivity();
-        service = ((MusicList)activity.getApplicationContext()).getPlayService();
+        service = ((Global)activity.getApplicationContext()).getPlayService();
         return view;
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        service.putExtra("current",position);
+        service.putExtra("current", position);
         Log.i("LIN", "ITEMCLICK" + position);
         service.putExtra("action", PlayService.MUSICLIST_PLAY);
         service.putExtra("musicType", PlayService.ONLINE_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
@@ -84,7 +83,7 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
         // onPostExecute displays the results of the AsyncTask.
         protected void onPostExecute(String result) {
             onlineMusicList = parseJsonMulti(result);
-            ((MusicList)getActivity().getApplicationContext()).setOnlineMusicList(onlineMusicList);//网络歌单更新
+            ((Global)getActivity().getApplicationContext()).setOnlineMusicList(onlineMusicList);//网络歌单更新
             List<String> strs = new ArrayList<String>();
             for(Music m : onlineMusicList) {
                 strs.add(m.getTitle());
@@ -136,7 +135,6 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
         StringBuffer stringBuffer = new StringBuffer();
         OutputStream out = new FileOutputStream(getActivity().getFilesDir()+ File.separator+fileName);
         Log.i("LIN",getActivity().getFilesDir()+"");
-        String str = "";
         byte[] buffer = new byte[1024];
         while ((stream.read(buffer)) != -1) {
             stringBuffer.append(new String(buffer));
