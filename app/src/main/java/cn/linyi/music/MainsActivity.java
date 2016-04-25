@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -28,10 +27,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.linyi.music.adpter.PagerAdapter;
 import cn.linyi.music.fragment.Fragment_charts;
 import cn.linyi.music.fragment.Fragment_per_recommend;
 import cn.linyi.music.fragment.Fragment_radio;
 import cn.linyi.music.fragment.Fragment_songs_list;
+import cn.linyi.music.service.PlayService;
 import cn.linyi.music.util.Global;
 
 public class MainsActivity extends FragmentActivity implements View.OnClickListener{
@@ -40,7 +41,8 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
     private PagerAdapter adapter;
     private ImageView red_line,main_music_list,main_music_play,main_music_next ;
     private TextView main_music_title,main_music_artist;
-    private MusicListActivity musicListActivity;
+    private MusicListWindow musicListWindow;
+    private LinearLayout musicButtom;
 
     private Intent service;
     ServiceConnection sc;
@@ -68,10 +70,11 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mains);//文件名要对哦
+        handler = new Handler();
         service = new Intent("myservice");
         service.setPackage("cn.linyi.service_01");
         Global.init(this);
-        ((Global) getApplicationContext()).setPlayService(service);//设置全局变量 以保证全局只有一个IntentService 实例
+        Global.setPlayService(service);//设置全局变量 以保证全局只有一个IntentService 实例
         initView();
         initContent();
         bindPlayService();
@@ -84,23 +87,29 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
         btn_chart = (Button) findViewById(R.id.main_btn_4);
         pager = (ViewPager) findViewById(R.id.vp_content);
 
-        handler = new Handler();
-
         main_music_title =(TextView) findViewById(R.id.main_music_title);
         main_music_artist =(TextView) findViewById(R.id.main_music_artist);
         main_music_list = (ImageView) findViewById(R.id.main_music_list);
         main_music_play = (ImageView) findViewById(R.id.main_music_play);
         main_music_next = (ImageView) findViewById(R.id.main_music_next);
+        musicButtom = (LinearLayout) findViewById(R.id.main_music_bottom);
+        musicButtom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainsActivity.this,MusicMainActivity.class);
+                startActivity(intent);
+            }
+        });
         progress = (SeekBar) findViewById(R.id.main_music_progress);
         red_line = (ImageView) findViewById(R.id.red_line);
         Log.i("YI",red_line+" ");
 
         //获取屏幕尺寸
-        WindowManager wm = this.getWindowManager();
+    /*    WindowManager wm = this.getWindowManager();
         DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int screenW = dm.widthPixels;
-        width = dm.widthPixels;
+        getWindowManager().getDefaultDisplay().getMetrics(dm);*/
+        int screenW = Global.SCREEN_WIDTH;
+        width = Global.SCREEN_WIDTH;
 
         Log.i("LIN",width+"");
         imageWidth = (int) (width/4.0);
@@ -120,6 +129,7 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
         btn_songs.setOnClickListener(this);
         btn_radio.setOnClickListener(this);
         btn_chart.setOnClickListener(this);
+
         main_music_list.setOnClickListener(this);
         main_music_play.setOnClickListener(this);
         main_music_next.setOnClickListener(this);
@@ -174,6 +184,7 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
                 break;
             case R.id.main_music_play:
                 service.putExtra("action",PlayService.PLAY_PASUE);
+              //  service.putExtra("musicType",Global.getMusicType());
                 startService(service);
                 break;
             case R.id.main_music_next:
@@ -186,10 +197,10 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
     }
 
     private void setCurrentPage(int item) {
-        // FragmentManager fm = getSupportFragmentManager();
-        switch (item) {
-            case 0:
-                pager.setCurrentItem(0, true);
+                // FragmentManager fm = getSupportFragmentManager();
+                switch (item) {
+                    case 0:
+                        pager.setCurrentItem(0, true);
 //                fm.getFragments().get(0).getView().findViewById()
                 break;
             case 1:
@@ -229,7 +240,7 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
                         }
                     }
                 };
-                mTimer.schedule(mTimerTask, 0, 10);
+                mTimer.schedule(mTimerTask, 0, 100);
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {
@@ -239,16 +250,13 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
         this.bindService(service, sc, Context.BIND_AUTO_CREATE);//bind只发生一次
     }
 
-
-
-
     public void showCurrMusicList() {
-        if(musicListActivity == null) {
-            musicListActivity = new MusicListActivity(this);
-            musicListActivity.setBackgroundDrawable(new ColorDrawable());
+        if(musicListWindow == null) {
+            musicListWindow = new MusicListWindow(this);
+           // musicListWindow.setBackgroundDrawable(new ColorDrawable());
         }
-        musicListActivity.updateMusicList(((Global) getApplicationContext()).getCurrMusicList());
-        musicListActivity.showAtLocation(this.findViewById(R.id.main_music_bottom),
+        musicListWindow.updateMusicList(Global.getCurrMusicList());
+        musicListWindow.showAtLocation(this.findViewById(R.id.main_music_bottom),
                 Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,0);//vity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0); //
         WindowManager.LayoutParams params=this.getWindow().getAttributes();
         params.alpha=0.7f;
@@ -258,13 +266,16 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
     }
 
     public void login(View view) {
-        LoginActivity loginActivity = new LoginActivity(this);
+        /*LoginActivity loginActivity = new LoginActivity(this,getApplicationContext());
         loginActivity.showAtLocation(this.findViewById(R.id.main_music_bottom),
-                Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,0);
+                Gravity.LEFT|Gravity.CENTER_HORIZONTAL,0,0);
         WindowManager.LayoutParams params=this.getWindow().getAttributes();
         params.alpha=0.7f;
         this.getWindow().setAttributes(params);
-        Log.i("YI", "已经点击了显示了");
+        Log.i("YI", "已经点击了显示了");*/
+
+        Intent intent = new Intent(this,LoginRegisterActivity.class);
+        startActivity(intent);
     }
 
      public void onDestroy() {
@@ -275,8 +286,8 @@ public class MainsActivity extends FragmentActivity implements View.OnClickListe
     Runnable runnableUi = new Runnable() {
         @Override
         public void run() {
-            main_music_artist.setText(mb.getCurMusic());
-            main_music_title.setText(mb.getCurMusic());
+            main_music_artist.setText(mb.getCurMusic().getArtist());
+            main_music_title.setText(mb.getCurMusic().getTitle());
             if (mb.isplaying()) {
                 main_music_play.setImageDrawable(getResources().getDrawable(R.drawable.pasue));
             } else

@@ -6,7 +6,17 @@ package cn.linyi.music.bean;
 public class Lyric {
     private  int beginTime;
     private int endTime;
-    private int timeLine;
+    private String timeLine;
+    private boolean iscenter;
+
+    public boolean iscenter() {
+        return iscenter;
+    }
+
+    public void setIscenter(boolean iscenter) {
+        this.iscenter = iscenter;
+    }
+
     /*歌词部分*/
     private String lrc;
     /* 文件是否存在*/
@@ -30,11 +40,11 @@ public class Lyric {
         this.endTime = endTime;
     }
 
-    public int getTimeLine() {
+    public String getTimeLine() {
         return timeLine;
     }
 
-    public void setTimeLine(int timeLine) {
+    public void setTimeLine(String timeLine) {
         this.timeLine = timeLine;
     }
 

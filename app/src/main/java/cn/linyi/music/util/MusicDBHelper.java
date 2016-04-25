@@ -36,7 +36,7 @@ public class MusicDBHelper extends SQLiteOpenHelper {
        // Log.i("LIN", "table MUSIC..is created");
         db.execSQL(sql);///竟然忘了执行 我也是醉了
 
-        //建立表之前先插入一条空记录 用于记录退出时的播放信息，position为歌曲在整个播放列表的位置
+        //建立表之前先插入一条空记录 用于记录退出时的播放信息，position为歌曲在整个播放列表的位置其id为1
         String sql1 = "insert into  music(position) values(2)";
         db.execSQL(sql1);
     }

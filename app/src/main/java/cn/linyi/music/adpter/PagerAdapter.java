@@ -1,4 +1,4 @@
-package cn.linyi.music;
+package cn.linyi.music.adpter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,11 +7,14 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.List;
 
 /**
- * Created by linyi on 2016/3/30.
+ * @类描述 主界面的fragment容器
+ *PagerAdapter
+ *@author lin
+ * created at 2016/4/18 14:39
  */
+
 public class PagerAdapter extends FragmentPagerAdapter {
     private List<Fragment> list_fragments;
-
 
     public void setList_fragments(List<Fragment> list_fragments) {
         this.list_fragments = list_fragments;

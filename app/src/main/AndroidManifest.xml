@@ -9,19 +9,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".util.Global"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-
-        </activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".MusicMainActivity" />
+        <activity android:name=".LoginActivity" />
 
         <service
-            android:name=".PlayService"
+            android:name=".service.PlayService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -29,11 +27,9 @@
             </intent-filter>
         </service>
         <service
-            android:name=".DownloadService"
+            android:name=".service.DownloadService"
             android:enabled="true"
-            android:exported="true">
-
-        </service>
+            android:exported="true" />
 
         <activity android:name=".MainsActivity">
             <intent-filter>
@@ -42,6 +38,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".LoginActivity1" />
+        <activity android:name=".BaseActivity" />
+        <activity android:name=".LoginRegisterActivity" />
+        <activity android:name=".util.RegisterActivity"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
     </application>
 
 </manifest>

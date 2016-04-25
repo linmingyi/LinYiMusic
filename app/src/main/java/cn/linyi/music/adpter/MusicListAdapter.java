@@ -1,4 +1,4 @@
-package cn.linyi.music;
+package cn.linyi.music.adpter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import cn.linyi.music.R;
 import cn.linyi.music.bean.Music;
 
 /**
@@ -40,7 +41,7 @@ public class MusicListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null) {
-            convertView = inflater.inflate(R.layout.musiclist_adapter,null);
+            convertView = inflater.inflate(R.layout.adapter_musiclist,null);
         }
         TextView musicTitle = (TextView)convertView.findViewById(R.id.music_title);
         TextView musicArtist = (TextView)convertView.findViewById(R.id.music_artist);

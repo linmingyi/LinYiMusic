@@ -19,6 +19,7 @@ public class Music {
     /*路径*/
     private String path;
     /*文件大小*/
+    private long length;
 
     public long getLength() {
         return length;
@@ -28,7 +29,7 @@ public class Music {
         this.length = length;
     }
 
-    private long length;
+
 
     public Music(){
 

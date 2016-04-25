@@ -3,14 +3,20 @@
     android:background="#FFF"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center"
+    >
     <TextView
         android:id="@+id/musicList_count"
+        android:gravity="center"
+        android:textColor="#000"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
     <ListView
         android:id="@+id/musicList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="7">
     </ListView>
 </LinearLayout>

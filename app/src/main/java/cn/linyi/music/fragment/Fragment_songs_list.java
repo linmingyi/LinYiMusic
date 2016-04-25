@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.linyi.music.util.Global;
-import cn.linyi.music.PlayService;
+import cn.linyi.music.service.PlayService;
 import cn.linyi.music.R;
 import cn.linyi.music.bean.Music;
 
@@ -52,7 +52,7 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
         new JsonText().execute(stringUrl);
         Log.i("LIN", stringUrl);
         activity = getActivity();
-        service = ((Global)activity.getApplicationContext()).getPlayService();
+        service = Global.getPlayService();
         return view;
     }
 
@@ -83,7 +83,7 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
         // onPostExecute displays the results of the AsyncTask.
         protected void onPostExecute(String result) {
             onlineMusicList = parseJsonMulti(result);
-            ((Global)getActivity().getApplicationContext()).setOnlineMusicList(onlineMusicList);//网络歌单更新
+            Global.setOnlineMusicList(onlineMusicList);//网络歌单更新
             List<String> strs = new ArrayList<String>();
             for(Music m : onlineMusicList) {
                 strs.add(m.getTitle());

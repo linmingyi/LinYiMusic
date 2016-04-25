@@ -3,11 +3,8 @@ package cn.linyi.music.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Created by linyi on 2016/4/17.
- */
 public class MD5Util {
-    public final static String getMD5String(String s) {
+    public  static String getMD5String(String s) {
         char hexDigits[] = { '0', '1', '2', '3', '4',
                 '5', '6', '7', '8', '9',
                 'A', 'B', 'C', 'D', 'E', 'F' };
