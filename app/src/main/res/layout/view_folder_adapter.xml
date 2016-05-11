@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="50dp">
+<ImageView
+    android:src="@drawable/scan_icn_folder"
+    android:layout_width="0dp"
+    android:layout_weight="3"
+    android:layout_height="match_parent"
+    android:scaleType="center"/>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="15"
+        android:minHeight="50dp"
+        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/folder_name"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/folder_path"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/btn_folder_fun"
+        android:src="@drawable/scan_icn_folder"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:layout_height="match_parent"
+        android:scaleType="center"/>
+    <ImageView
+        android:id="@+id/folder_isplaying"
+        android:src="@drawable/scan_icn_folder"
+        android:layout_width="0dp"
+        android:layout_weight="0"
+        android:layout_height="match_parent"
+        android:scaleType="center"/>
+</LinearLayout>

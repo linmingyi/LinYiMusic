@@ -48,8 +48,10 @@ public class LyricAdapter extends BaseAdapter {
 
         if(lyricList.get(position).iscenter()){
             lyric.setTextColor(Color.WHITE);
+            lyric.setTextSize(18);
         } else {
-            lyric.setTextColor(Color.YELLOW);
+            lyric.setTextColor(Color.GRAY);
+            lyric.setTextSize(14);
         }
         return convertView;
     }

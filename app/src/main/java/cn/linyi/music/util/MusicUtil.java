@@ -5,7 +5,9 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.linyi.music.Dao.MusicDao;
 import cn.linyi.music.bean.Music;
@@ -59,6 +61,30 @@ public class MusicUtil {
                 }
             }
         }
+    }
+
+    //将音乐按文件夹分类即吧同一文件夹下的音乐放到同一个list中
+    public static void classfied(Map<String,List<Music>> maps,List<Music> musiclists){
+        for (Music m:musiclists) {
+            if(null != maps.get(getFolderName(m)) ) {
+                maps.get(getFolderName(m)).add(m);
+            } else {
+                maps.put(getFolderName(m), new ArrayList<Music>());
+                System.out.println(maps.get(getFolderName(m)));
+                maps.get(getFolderName(m)).add(m);
+            }
+        }
+        for(Map.Entry<String,List<Music>> map:maps.entrySet()){
+            System.out.println(map.getKey()+"文件夹下有"+map.getValue().size()+"首歌曲");
+        }
+        System.out.println(maps.entrySet().size()+"  "+maps.size());
+    }
+
+//获取音乐所在的文件夹
+    public static String getFolderName(Music music){
+        String fileParent = music.getPath().substring(0,music.getPath().lastIndexOf(File.separator));
+
+        return fileParent.substring(fileParent.lastIndexOf(File.separator)+1);
     }
 
 }

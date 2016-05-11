@@ -41,7 +41,7 @@ public class MusicAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = inflater.inflate(R.layout.activity_music_list,null);
+        convertView = inflater.inflate(R.layout.popwindow_musiclist,null);
         TextView title = (TextView)convertView.findViewById(R.id.titile);
         TextView artist = (TextView)convertView.findViewById(R.id.artist);
         Music m = data.get(position);

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ly_musicmain"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/fm_run_song_bg"
     tools:context="cn.linyi.music.MusicMainActivity"
-    >
+    > <!-- -->
     <LinearLayout
         android:id="@+id/music_main_top"
         android:layout_width="match_parent"
@@ -15,6 +16,8 @@
         android:orientation="horizontal">
         <ImageButton
             android:id="@+id/btn_musicmain_back"
+            android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+            android:background="#00000000"
             android:layout_margin="0dp"
             android:layout_width="0dp"
             android:layout_weight="165"
@@ -42,21 +45,24 @@
         </RelativeLayout>
 		<ImageButton
                 android:id="@+id/btn_musicmain_share"
+                android:src="@drawable/lrc_btm_icn_share_prs"
+                android:background="#00000000"
                 android:layout_width="0dp"
                 android:layout_weight="165"
-                android:layout_height="match_parent"
+                android:layout_height="@dimen/activity_songs_btn_height"
                 android:layout_gravity="end"
                />
 
     </LinearLayout>
-    <ListView
+    <cn.linyi.music.view.LyricListView
         android:id="@+id/music_lrc"
         android:divider="@null"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1250"
-        android:layout_below="@+id/music_main_top">
-    </ListView>
+        >
+    </cn.linyi.music.view.LyricListView>
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -88,14 +94,14 @@
                 />
            <SeekBar
                 android:id="@+id/sb_musicmain_progress"
-               android:thumb="@drawable/circle"
+                android:thumb="@drawable/circle"
                 android:layout_width="0dp"
-                android:layout_weight="800"
+                android:layout_weight="700"
                 android:layout_height="wrap_content"
-               android:thumbOffset="0dip"
-               android:minHeight="1dp"
-               android:maxHeight="1dp"
-               android:layout_gravity="center_vertical"
+                android:thumbOffset="0dip"
+                android:minHeight="1dp"
+                android:maxHeight="1dp"
+                android:layout_gravity="center_vertical"
           />
             <TextView
                 android:text="01:32"

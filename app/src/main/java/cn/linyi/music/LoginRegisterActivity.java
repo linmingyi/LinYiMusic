@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import cn.linyi.music.util.RegisterActivity;
-
 public class LoginRegisterActivity extends AppCompatActivity implements View.OnClickListener{
     private Button btn_showLogin;
     private Button  btn_Register;
@@ -30,8 +28,10 @@ public class LoginRegisterActivity extends AppCompatActivity implements View.OnC
                 startActivity(intent);
                 break;
             case R.id.btn_showRegister :
-                Intent intent1 = new Intent(this,RegisterActivity.class);
+                Intent intent1 = new Intent(this,LoginActivity1.RegisterActivity.class);
                 startActivity(intent1);
+                break;
+            default:
                 break;
         }
     }

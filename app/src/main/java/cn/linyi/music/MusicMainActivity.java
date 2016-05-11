@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -40,24 +41,25 @@ import cn.linyi.music.util.Global;
 import cn.linyi.music.util.LrcUtil;
 import cn.linyi.music.view.LyricListView;
 
-public class MusicMainActivity extends AppCompatActivity implements View.OnClickListener{
-    private ListView listView;
+public class MusicMainActivity extends AppCompatActivity implements View.OnClickListener,SeekBar.OnSeekBarChangeListener{
+    private LyricListView lyricListView;
     private List<Lyric> lyricList;
+    private LyricAdapter lyricAdapter;
     private Intent service;
-    private boolean isOnTouch;//设置互斥变量
-    private boolean isstop = false;//activity界面运行
-    private BroadcastReceiver receiver;
     private ImageButton btnBack, btnShare;
     private Handler handler;
     private TextView musicTitle, musicArtist, curMusicTime, curMusicDuration;
     private SeekBar progress;
+    private boolean isOnTouch;//设置互斥变量
+    private boolean isstop = false;//activity界面运行
     private boolean isChanging = false;
     private PlayService.MyBinder mb;//绑定的service服务
     private ServiceConnection sc;
 
     private TextView musicPlayPre, musicPlay, musicPlayNext, musicPlayList;
     private Music currMusic;
-
+    private Timer mTimer;
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,90 +68,249 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
         init();
         service = Global.getPlayService();
         bindPlayService();
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                int indext = (int) msg.getData().get("index");
-                listView.setSelection(indext);
-            }
-        };
-        currMusic = Global.getCurrMusicList().get(Global.getCurrentMusicIndex());
-        lyricList = LrcUtil.getLyrics(currMusic.getPath());
-        Log.i("YI", lyricList.size() + "");
-        final LyricAdapter lyricAdapter = new LyricAdapter(this.getLayoutInflater(), lyricList);
-        listView.setAdapter(lyricAdapter);
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                int progress = intent.getIntExtra("progress", 0);
-                //换歌曲的时候同时换歌词
-                if (!currMusic.equals(Global.getCurrMusicList().get(Global.getCurrentMusicIndex()))) {
-                    currMusic = Global.getCurrMusicList().get(Global.getCurrentMusicIndex());
-                    lyricList.clear();
-                    lyricList.addAll(LrcUtil.getLyrics(currMusic.getPath()));
-                    lyricAdapter.notifyDataSetChanged();
-                }
+       /* lyricAdapter = new LyricAdapter(this.getLayoutInflater(), lyricList);
+        listView.setAdapter(lyricAdapter);*/
+        handler = new Handler();
+    }
 
-                for (int i = 0; i < lyricList.size(); i++) {
-                    if (progress / 1000 == lyricList.get(i).getBeginTime()) {
-                        Log.i("YI", "ListViewHeight" + listView.getHeight());
-                        Message message = new Message();
-                        Bundle b = new Bundle();
-                        if (i >= 4) {
-                            b.putInt("index", i - 4);
-                        } else {
-                            b.putInt("index", 0);
-                        }
-                        message.setData(b);
-                        handler.sendMessage(message);
-                        lyricList.get(i).setIscenter(true);
-                        Log.i("YI", "LRC的第" + i);
-                        lyricAdapter.notifyDataSetChanged();
-                    } else {
-                        lyricList.get(i).setIscenter(false);
-                    }
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("progress");
-        registerReceiver(receiver, filter);
+//
+    @Override
+    protected void onResume() {
+        lyricList = LrcUtil.getLyrics(Global.getCurrMusicList().get(Global.getCurrentMusicIndex()).getPath());
+        Log.i("NUO","onresume:height:"+lyricListView.getHeight());
+        lyricListView.changeData(lyricList,0,lyricListView.getHeight());
+        super.onResume();
     }
 
     private void init() {
+        linearLayout = (LinearLayout) findViewById(R.id.ly_musicmain);
         musicTitle = (TextView) findViewById(R.id.tv_musicmain_title);
         musicArtist = (TextView) findViewById(R.id.tv_musicmain_artist);
         curMusicTime = (TextView) findViewById(R.id.tv_musicmain_curtime);
         curMusicDuration = (TextView) findViewById(R.id.tv_musicmain_duration);
         btnBack = (ImageButton) findViewById(R.id.btn_musicmain_back);
         btnShare = (ImageButton) findViewById(R.id.btn_musicmain_share);
-        listView = (ListView) findViewById(R.id.music_lrc);
+
+        lyricListView = (LyricListView) findViewById(R.id.music_lrc);
+
         musicPlayPre = (TextView) findViewById(R.id.tv_musicmain_playpre);
         musicPlay = (TextView) findViewById(R.id.tv_musicmain_play);
         musicPlayNext = (TextView) findViewById(R.id.tv_musicmain_playnext);
         musicPlayList = (TextView) findViewById(R.id.tv_musicmain_playlist);
         progress = (SeekBar) findViewById(R.id.sb_musicmain_progress);
+
+        progress.setOnSeekBarChangeListener(this);
+        btnShare.setOnClickListener(this);
+        btnBack.setOnClickListener(this);
         musicPlayPre.setOnClickListener(this);
         musicPlay.setOnClickListener(this);
         musicPlayNext.setOnClickListener(this);
         musicPlayList.setOnClickListener(this);
     }
 
+    private String getMusicTime(int musicTime) {
+        musicTime = musicTime / 1000;
+        return musicTime / 60 + ":" + musicTime % 60;
+    }
+
+    public void updateLyric(){
+        //换歌曲的时候同时换歌词
+        if (!currMusic.equals(Global.getCurrMusicList().get(Global.getCurrentMusicIndex()))) {
+            currMusic = Global.getCurrMusicList().get(Global.getCurrentMusicIndex());
+            lyricList.clear();
+            lyricList.addAll(LrcUtil.getLyrics(currMusic.getPath()));
+            lyricListView.changeData(lyricList, 0,lyricListView.getHeight());
+        }
+        boolean found = false;
+        int progress = mb.getProgress() / 1000;
+        if(lyricList.size()< 5){
+            lyricListView.changeData(lyricList,0,lyricListView.getHeight());
+        } else {
+            for (int i = 0; i < lyricList.size(); i++) {
+                if (progress == lyricList.get(i).getBeginTime()) {
+                    lyricListView.changeData(lyricList, i,lyricListView.getHeight());
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                for (int i = 0; i<lyricList.size()-1;i++) {
+                    if(progress > lyricList.get(i).getBeginTime() && progress<lyricList.get(i+1).getBeginTime()) {
+                        lyricListView.changeData(lyricList, i,lyricListView.getHeight());
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            //如果还是没有发现则一定是歌词的最后一句了
+            if(!found){
+                lyricListView.changeData(lyricList,lyricList.size()-1,lyricListView.getHeight());
+            }
+        }
+        /*for (int i = 0; i < lyricList.size(); i++) {
+            if (progress / 1000 == lyricList.get(i).getBeginTime()) {
+                Log.i("YI", "ListViewHeight" + listView.getHeight());
+                Message message = new Message();
+                Bundle b = new Bundle();
+                if (i >= 4) {
+                    listView.setSelection(i-4);
+                } else {
+                    listView.setSelection(0);
+                }
+                lyricList.get(i).setIscenter(true);
+                Log.i("YI", "LRC的第" + i);
+            } else {
+                lyricList.get(i).setIscenter(false);
+            }
+            lyricAdapter.notifyDataSetChanged();
+        }*/
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.tv_musicmain_playpre:
+                doService(PlayService.PREVIOUS_SONG);
+                break;
+            case R.id.tv_musicmain_playnext:
+                doService(PlayService.NEXT_SONG);
+                break;
+            case R.id.tv_musicmain_play:
+                doService(PlayService.PLAY_PASUE);
+                break;
+            case R.id.btn_musicmain_back:
+                Log.i("YI","finish() is called");
+                this.finish();
+                break;
+            case R.id.btn_musicmain_share:
+                shareMusic();
+                break;
+            default:
+                break;
+        }
+        handler.post(runnableUi);
+    }
+
+//根据传入的ActionName 向PlaYservuce发送信息
+    private void doService(int ActionName){
+            service.putExtra("action",ActionName);
+            startService(service);
+    }
+//分享歌曲，应该单独拿出来，应为不仅仅这一个地方会用到
+    private void shareMusic() {
+        Log.i("YI","share() is called");
+    }
+
+
+    //在activity　的oncreat是绑定服务。
+    public void bindPlayService(){
+        sc = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+               // Log.i("NUO", "service connected");
+                mb = (PlayService.MyBinder) service;
+                progress.setMax(mb.getDuration());//定义进度条最大长度
+                currMusic = Global.getCurrMusicList().get(Global.getCurrentMusicIndex());
+                lyricList = LrcUtil.getLyrics(currMusic.getPath());
+                updateLyric();
+                //----------定时器记录播放进度---------//
+                if (mTimer == null) {
+                    mTimer = new Timer();
+                }
+                TimerTask mTimerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (isChanging) {
+                            return;
+                        }
+                        if (!isstop) {
+                            progress.setProgress(mb.getProgress());
+                         //   Log.i("YI","musicMain 更新progress");
+                            handler.post(runnableUi);
+                            // if(mb.getProgress()==mb.getDuration()) nextMusic();
+                        }
+                       // Log.i("YI","musicMain 不更新但是还在用progress");
+                    }
+                };
+                mTimer.schedule(mTimerTask, 0, 100);
+            }
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+               // Log.i("LIN", "service disconnected");
+            }
+        };
+        this.bindService(service, sc, Context.BIND_AUTO_CREATE);//bind只发生一次
+    }
+
+    @Override
+    protected void onPause() {
+        isstop = true;
+        super.onPause();
+    }
+
+    Runnable runnableUi = new Runnable() {
+        @Override
+        public void run() {
+            musicTitle.setText(mb.getCurMusic().getTitle());
+            musicArtist.setText(mb.getCurMusic().getArtist());
+           // curMusicTime.setText(getMusicTime(mb.getProgress()));
+            curMusicDuration.setText(getMusicTime(mb.getDuration()));
+            if(mb.isplaying()){
+                musicPlay.setBackgroundDrawable(getResources().getDrawable(R.drawable.play_btn_pause));
+            }else {
+                musicPlay.setBackgroundDrawable(getResources().getDrawable(R.drawable.play_btn_play));
+            }
+            updateLyric();
+        }
+    };
+
+    //SeekbarLinsen
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        curMusicTime.setText(getMusicTime(seekBar.getProgress()));
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        isChanging = true;
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        service.putExtra("seekmsec", seekBar.getProgress());
+        service.putExtra("action", PlayService.SEEKBAR_CHANG);
+        startService(service);
+        isChanging = false;
+    }
+
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
-        unregisterReceiver(receiver);
+//        unregisterReceiver(receiver);
         unbindService(sc);
+       // currMusic = null;
+       lyricListView = null;
+        lyricList.clear();
+        mTimer.cancel();
+        handler.removeCallbacks(runnableUi);
+        releaseTextView(musicPlayPre);
+        releaseTextView(musicPlay);
+        releaseTextView(musicPlayNext);
+        releaseTextView(musicPlayList);
+        Drawable d = linearLayout.getBackground();
+        if(d != null) {
+           //Log.i("YI","release drawble");
+            d.setCallback(null);
+        }
+        linearLayout.setBackgroundDrawable(null);
         Log.i("YI", "DEstroy MUSIC main ");
         super.onDestroy();
         //当Activity销毁的时候取消注册BroadcastReceiver
 
     }
 
-    private String getMusicTime(int musicTime) {
-        musicTime = musicTime / 1000;
-        return musicTime / 60 + ":" + musicTime % 60;
-    }
 
     private void releaseImageView(ImageView imageView) {
         Drawable d = imageView.getDrawable();
@@ -159,63 +320,14 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
         imageView.setBackgroundDrawable(null);
     }
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        switch (id) {
-            case R.id.tv_musicmain_playpre:
-                service.putExtra("action",  PlayService.PREVIOUS_SONG);
-                startService(service);
-                break;
-            case R.id.tv_musicmain_playnext:
-                service.putExtra("action",  PlayService.NEXT_SONG);
-                startService(service);
-                break;
-            default:
-                break;
+    private void releaseTextView(TextView textView){
+        Drawable d = textView.getBackground();
+        if(d != null) {
+            Log.i("YI","release drawble");
+            d.setCallback(null);
         }
+        textView.setBackgroundDrawable(null);
+        textView = null;
     }
-
-    public void bindPlayService(){
-        sc = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.i("LIN", "service connected");
-                mb = (PlayService.MyBinder) service;
-                progress.setMax(mb.getDuration());//定义进度条最大长度
-                //----------定时器记录播放进度---------//
-                Timer mTimer = new Timer();
-               TimerTask mTimerTask = new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (isChanging) {
-                            return;
-                        }
-                        if (!isstop) {
-                            progress.setProgress(mb.getProgress());
-                            handler.post(runnableUi);
-                            // if(mb.getProgress()==mb.getDuration()) nextMusic();
-                        }
-                    }
-                };
-                mTimer.schedule(mTimerTask, 0, 100);
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                Log.i("LIN", "service disconnected");
-            }
-        };
-        this.bindService(service, sc, Context.BIND_AUTO_CREATE);//bind只发生一次
-    }
-
-    Runnable runnableUi = new Runnable() {
-        @Override
-        public void run() {
-            musicTitle.setText(mb.getCurMusic().getTitle());
-            musicArtist.setText(mb.getCurMusic().getArtist());
-            curMusicTime.setText(getMusicTime(mb.getProgress()));
-            curMusicDuration.setText(getMusicTime(mb.getDuration()));
-        }
-    };
 
 }

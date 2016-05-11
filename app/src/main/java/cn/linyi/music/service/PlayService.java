@@ -25,6 +25,7 @@ public class PlayService extends Service {
     private List<Music> musicList;
     private int musicType = LOCAL_MUSIC;
     private int current = 0;
+    private Timer mTimer;
     /*
     * android常量调用为 类名.常量名
     * */
@@ -60,6 +61,10 @@ public class PlayService extends Service {
         public  Music getCurMusic(){
             return musicList.get(current);
         }
+
+        public MediaPlayer getMediaPlayer() {
+            return mediaplayer;
+        }
     }
 
     //初始化应用
@@ -81,11 +86,11 @@ public class PlayService extends Service {
     private void init(){
         musicDao = new MusicDao(this);
         musicList = MusicUtil.findAllMp3(musicDao);
-
         Music m = MusicUtil.getLastMusic(musicDao);
         //position为music 在播放列表中的位置
         current = m.getPosition();
         Global.setLocalMusicList(musicList);
+        Log.i("NUOYI", Global.getLocalMusicList().size()+"local size");
         Global.setCurrMusicList(musicList);
         Global.setMusicType(LOCAL_MUSIC);//musicType 应该保存到数据库中以保留退出时的播放列表
         Global.setCurrentMusicIndex(current);
@@ -114,7 +119,7 @@ public class PlayService extends Service {
                 }
             }
         });
-        Timer mTimer = new Timer();
+        mTimer = new Timer();
         TimerTask mTimertask = new TimerTask() {
             @Override
             public void run() {
@@ -244,6 +249,7 @@ public class PlayService extends Service {
         if( mediaplayer != null) {
             mediaplayer = null;
         }
+        mTimer.cancel();
         Log.i("LIN", "service销毁了");
         super.onDestroy();
     }

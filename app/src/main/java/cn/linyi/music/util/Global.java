@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.linyi.music.bean.Music;
@@ -23,16 +24,29 @@ public class Global  {
     private static List<Music> localMusicList;
     private static List<Music> onlineMusicList;
     private static List<Music> currMusicList;
+    private static List<Music> currFolderMusicList;
+
+    public static List<Music> getCurrFolderMusicList() {
+        return currFolderMusicList;
+    }
+
+    public static void setCurrFolderMusicList(List<Music> currFolderMusicList) {
+        Global.currFolderMusicList = currFolderMusicList;
+    }
+
+    private static Music currMusic;
+    private static User user;
     private static Intent playService;
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
-    private static User user;
     private static int MusicType;
     private static int CurrentMusicIndex;
 
     public static int getCurrentMusicIndex() {
         return CurrentMusicIndex;
     }
+
+    public static Music getCurrMusic() {return currMusicList.get(CurrentMusicIndex);}
 
     public static void setCurrentMusicIndex(int currentMusicIndex) {
         CurrentMusicIndex = currentMusicIndex;
@@ -70,12 +84,13 @@ public class Global  {
                 currMusicList.clear();
                 Log.i("YI","clear了");
                 Log.i("YI",curr.size()+"   curr       id:"+curr.hashCode());
-                currMusicList.addAll(curr);
                 Log.i("YI",currMusicList.size()+"          id:"+currMusicList.hashCode());
             }
         } else {
             Log.i("YI","初始化了");
-            currMusicList = curr;}
+            currMusicList = new ArrayList<Music>();
+        }
+        currMusicList.addAll(curr);
         Log.i("YI",currMusicList.size()+"          id:"+currMusicList.hashCode());
     }
 
@@ -84,7 +99,12 @@ public class Global  {
     }
 
     public  static void setLocalMusicList(List<Music> localList) {
-        localMusicList = localList;
+       if(localMusicList != null){
+           localMusicList.clear();
+       } else {
+           localMusicList = new ArrayList<Music>();
+       }
+        localMusicList.addAll(localList);
     }
 
     public static List<Music> getOnlineMusicList() {

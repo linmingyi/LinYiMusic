@@ -33,6 +33,7 @@ import cn.linyi.music.util.Global;
 import cn.linyi.music.service.PlayService;
 import cn.linyi.music.R;
 import cn.linyi.music.bean.Music;
+import cn.linyi.music.util.HttpUtil;
 
 /**
  * Created by linyi on 2016/3/30.
@@ -46,7 +47,6 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_songs_list,container,false);
-        Log.i("LIN", view.getId() + "   "+R.layout.fragment_songs_list);
         listView = (ListView)view.findViewById(R.id.onlineMusicList);
         listView.setOnItemClickListener(this);
         new JsonText().execute(stringUrl);
@@ -114,8 +114,8 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
             is = conn.getInputStream();
             String fileName = myurl.substring(myurl.lastIndexOf("/")+1);
 
-            // Convert the InputStream into a string
-            String contentAsString = readIt(is, len,fileName);
+            // Convert the InputStream into a strings
+            String contentAsString = HttpUtil.inputStreamToString(is);
             Log.i("LIN",contentAsString);
             return contentAsString;
             // Makes sure that the InputStream is closed after the app is
@@ -128,7 +128,7 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
     }
 
     // Reads an InputStream and converts it to a String.
-    public String readIt(InputStream stream, int len,String fileName) throws IOException {
+    public String readIt(InputStream stream, String fileName) throws IOException {
         Reader reader = null;
         reader = new InputStreamReader(stream, "UTF-8");
         BufferedReader bufferedReader = new BufferedReader(reader);

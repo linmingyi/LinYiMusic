@@ -1,14 +1,17 @@
 package cn.linyi.music;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -32,6 +35,8 @@ public class MusicListWindow extends PopupWindow implements AdapterView.OnItemCl
     private MusicListAdapter musicListAdapter;
     private Context context;
     private Intent service;
+    private boolean scrollFlag = false;// 标记是否滑动
+    private int lastVisibleItemPosition = 0;// 标记上次滑动位置
     public void setMusicList(List<Music> musicList) {
         this.musicList = musicList;
     }
@@ -65,6 +70,46 @@ public class MusicListWindow extends PopupWindow implements AdapterView.OnItemCl
         //设置SelectPicPopupWindow弹出窗体动画效果
       //  this.setAnimationStyle(R.style.AnimBottom);
         view.setOnTouchListener(this);
+        musicListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                switch (scrollState) {
+                    case  AbsListView.OnScrollListener.SCROLL_STATE_IDLE:// 是当屏幕停止滚动时
+                        scrollFlag = false;
+                        // 判断滚动到顶部
+                        if (musicListView.getFirstVisiblePosition() == 0) {
+                            musicListView.setSelection(0);
+                        }
+                        lastVisibleItemPosition = view.getFirstVisiblePosition();
+                        break;
+                    case  AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:// 滚动时
+                        scrollFlag = true;
+                        break;
+                    case AbsListView.OnScrollListener.SCROLL_STATE_FLING:// 是当用户由于之前划动屏幕并抬起手指，屏幕产生惯性滑动时
+                        scrollFlag = false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                Log.i("NUO","FIR:"+firstVisibleItem+"LAST:"+lastVisibleItemPosition);
+              if (scrollFlag) {
+                  if(firstVisibleItem > lastVisibleItemPosition) {
+                      Log.i("NUO","上滑");
+                  } else if (firstVisibleItem <lastVisibleItemPosition) {
+                      Log.i("NUO","下滑");
+                  }    else {
+                      Log.i("NUO","meihua");
+                      return;
+                  }
+                  lastVisibleItemPosition = firstVisibleItem ;
+              }
+
+            }
+        });
     }
 
 /*
@@ -85,16 +130,28 @@ public class MusicListWindow extends PopupWindow implements AdapterView.OnItemCl
         Log.i("YI","调用了更新viewAdpter方法");
         musicListAdapter.notifyDataSetChanged();
         textView.setText("播放列表（"+list.size()+")");
+
+        int currIndex = Global.getCurrentMusicIndex();
+        int allVisableCount = musicListView.getLastVisiblePosition()-musicListView.getFirstVisiblePosition()+1;
+        Log.i("NUO","allvisable:"+ musicListView.getLastVisiblePosition());
+        if(currIndex>=4) {
+            musicListView.setSelection(currIndex - allVisableCount/2);
+        } else {
+            musicListView.setSelection(0);
+        }
         Log.i("YI",list.size()+"");
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+       Global.setCurrentMusicIndex(position);
         service.putExtra("current", position);
         Log.i("LIN", "ITEMCLICK" + position);
         service.putExtra("action", PlayService.MUSICLIST_PLAY);
         //service.putExtra("musicType", PlayService.ONLINE_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
         context.startService(service);
+        musicListAdapter.notifyDataSetChanged();
     }
 /*
 * PopupWindow 如果不设置其背景则需要自己重写onTouch()监听方法以实现点击空白处消失
