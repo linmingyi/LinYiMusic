@@ -46,31 +46,35 @@
                     android:layout_below="@+id/main_music_title"
                     />
             </RelativeLayout>
-            <ImageView
+            <ImageButton
                 android:id="@+id/main_music_list"
-                android:src="@drawable/list_icn_mng_dis"
+                android:src="@drawable/playbar_btn_playlist"
                 android:layout_width="0dp"
                 android:layout_weight="130"
                 android:layout_height="@dimen/activity_songs_btn_height"
-                android:scaleType="fitCenter"
+                android:scaleType="center"
                 android:layout_toRightOf="@+id/main_music_artist"
-                android:layout_toEndOf="@+id/main_music_artist"/>
-            <ImageView
+                android:layout_toEndOf="@+id/main_music_artist"
+                android:background="@color/colorTransparent"/>
+            <ImageButton
                 android:id="@+id/main_music_play"
-                android:src="@drawable/list_icn_play"
+                android:src="@drawable/playbar_btn_play"
                 android:layout_width="0dp"
                 android:layout_weight="130"
                 android:layout_height="@dimen/activity_songs_btn_height"
-                android:scaleType="fitCenter"
+                android:scaleType="center"
+                android:background="@color/colorTransparent"
                 />
-            <ImageView
+            <ImageButton
                 android:id="@+id/main_music_next"
                 android:src="@drawable/playbar_btn_next"
                 android:layout_width="0dp"
                 android:layout_weight="130"
                 android:layout_height="@dimen/activity_songs_btn_height"
-                android:scaleType="fitCenter"
+                android:scaleType="center"
+                android:background="@color/colorTransparent"
                 />
+            <!--fitCenter 是尽量占满整个空间  center则是主要显示中间部分-->
         </LinearLayout>
         <ProgressBar
             android:id="@+id/main_music_progress"

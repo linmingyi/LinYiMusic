@@ -32,13 +32,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/activity_songs_title_height"
                 android:textSize="20sp"
-                android:text="sfsdfsafs" />
+                 />
             <TextView
                 android:id="@+id/tv_musicmain_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/activity_songs_title_height"
                 android:textSize="14sp"
-                android:text="1dfssdfsfa3"
                 android:paddingBottom="2dp"
                 android:layout_below="@+id/tv_musicmain_title"
                 />
@@ -128,37 +127,38 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent">
-                <TextView
+                <ImageView
+                    android:id="@+id/playing_mode"
                     android:layout_marginTop="18dp"
                     android:layout_marginBottom="18dp"
                     android:layout_marginRight="10dp"
-                    android:background="@drawable/desk_loop"
+                    android:src="@drawable/play_icn_loop"
                     android:layout_width="0dp"
                     android:layout_weight="165"
                     android:layout_height="match_parent"
-                    android:scaleType="center"
                    />
-                <TextView
+                <ImageView
                     android:id="@+id/tv_musicmain_playpre"
                     android:layout_marginTop="9dp"
                     android:layout_marginBottom="9dp"
-                    android:background="@drawable/play_btn_prev"
+                    android:src="@drawable/play_btn_prev"
                     android:layout_width="0dp"
                     android:layout_weight="210"
-                    android:layout_height="wrap_content" />
-                <TextView
+                    android:layout_height="wrap_content"
+                    />
+                <ImageView
                     android:id="@+id/tv_musicmain_play"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@drawable/play_btn_play"
+                    android:src="@drawable/play_btn_play"
                     android:layout_width="0dp"
-                    android:layout_weight="255"
+                    android:layout_weight="245"
                     android:layout_height="wrap_content" />
-                <TextView
+                <ImageView
                     android:id="@+id/tv_musicmain_playnext"
                     android:layout_marginTop="9dp"
                     android:layout_marginBottom="9dp"
-                    android:background="@drawable/play_btn_next"
+                    android:src="@drawable/play_btn_next"
                     android:layout_width="0dp"
                     android:layout_weight="210"
                     android:layout_height="wrap_content" />
@@ -169,13 +169,13 @@
                     android:layout_weight="165"
                     android:gravity="center"
                     android:layout_height="wrap_content">
-                    <TextView
+                    <ImageView
                         android:id="@+id/tv_musicmain_playlist"
                         android:layout_gravity="center"
-                        android:background="@drawable/list_icn_move"
+                        android:src="@drawable/list_icn_move"
                         android:layout_width="wrap_content"
-
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

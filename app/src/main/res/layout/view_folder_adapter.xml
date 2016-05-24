@@ -33,11 +33,4 @@
         android:layout_weight="3"
         android:layout_height="match_parent"
         android:scaleType="center"/>
-    <ImageView
-        android:id="@+id/folder_isplaying"
-        android:src="@drawable/scan_icn_folder"
-        android:layout_width="0dp"
-        android:layout_weight="0"
-        android:layout_height="match_parent"
-        android:scaleType="center"/>
 </LinearLayout>

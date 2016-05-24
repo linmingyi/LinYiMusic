@@ -61,7 +61,6 @@ public class LyricListActivity extends Activity {
                 TimerTask mTimerTask = new TimerTask() {
                     @Override
                     public void run() {
-
                         mb.getProgress();
                         int progress = mb.getProgress();
                         if(lyricList.size()< 5){
@@ -73,7 +72,6 @@ public class LyricListActivity extends Activity {
                                 }
                             }
                         }
-                        // if(mb.getProgress()==mb.getDuration()) nextMusic();
                     }
                 };
                 mTimer.schedule(mTimerTask, 0, 100);

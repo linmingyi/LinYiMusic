@@ -4,8 +4,11 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
+    sourceSets.main {
+        jniLibs.srcDirs = ['libs']  // <-- Set your folder here!
+    }
     defaultConfig {
-        applicationId "cn.linyi.service_01"
+        applicationId "cn.linyi.music"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 2

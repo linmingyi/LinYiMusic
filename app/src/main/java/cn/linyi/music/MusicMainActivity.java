@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -40,6 +41,9 @@ import cn.linyi.music.service.PlayService;
 import cn.linyi.music.util.Global;
 import cn.linyi.music.util.LrcUtil;
 import cn.linyi.music.view.LyricListView;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.onekeyshare.OnekeyShare;
+
 
 public class MusicMainActivity extends AppCompatActivity implements View.OnClickListener,SeekBar.OnSeekBarChangeListener{
     private LyricListView lyricListView;
@@ -48,7 +52,8 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
     private Intent service;
     private ImageButton btnBack, btnShare;
     private Handler handler;
-    private TextView musicTitle, musicArtist, curMusicTime, curMusicDuration;
+    private TextView musicTitle, musicArtist, curMusicTime;
+    private TextView  curMusicDuration;
     private SeekBar progress;
     private boolean isOnTouch;//设置互斥变量
     private boolean isstop = false;//activity界面运行
@@ -56,10 +61,16 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
     private PlayService.MyBinder mb;//绑定的service服务
     private ServiceConnection sc;
 
-    private TextView musicPlayPre, musicPlay, musicPlayNext, musicPlayList;
+    private ImageView musicPlayPre, musicPlay, musicPlayNext, musicPlayList,playingMode;
     private Music currMusic;
     private Timer mTimer;
     private LinearLayout linearLayout;
+
+    public static final int LOOP_MODE = 1;//循环播放
+    public static final int RADOM_MODE = 2;//随机播放
+    public static final int SINGLE_MODE = 3;//单曲循环
+
+    private int lastPlayMode = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,12 +104,12 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
 
         lyricListView = (LyricListView) findViewById(R.id.music_lrc);
 
-        musicPlayPre = (TextView) findViewById(R.id.tv_musicmain_playpre);
-        musicPlay = (TextView) findViewById(R.id.tv_musicmain_play);
-        musicPlayNext = (TextView) findViewById(R.id.tv_musicmain_playnext);
-        musicPlayList = (TextView) findViewById(R.id.tv_musicmain_playlist);
+        musicPlayPre = (ImageView) findViewById(R.id.tv_musicmain_playpre);
+        musicPlay = (ImageView) findViewById(R.id.tv_musicmain_play);
+        musicPlayNext = (ImageView) findViewById(R.id.tv_musicmain_playnext);
+        musicPlayList = (ImageView) findViewById(R.id.tv_musicmain_playlist);
+        playingMode = (ImageView) findViewById(R.id.playing_mode);
         progress = (SeekBar) findViewById(R.id.sb_musicmain_progress);
-
         progress.setOnSeekBarChangeListener(this);
         btnShare.setOnClickListener(this);
         btnBack.setOnClickListener(this);
@@ -106,65 +117,36 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
         musicPlay.setOnClickListener(this);
         musicPlayNext.setOnClickListener(this);
         musicPlayList.setOnClickListener(this);
-    }
-
-    private String getMusicTime(int musicTime) {
-        musicTime = musicTime / 1000;
-        return musicTime / 60 + ":" + musicTime % 60;
-    }
-
-    public void updateLyric(){
-        //换歌曲的时候同时换歌词
-        if (!currMusic.equals(Global.getCurrMusicList().get(Global.getCurrentMusicIndex()))) {
-            currMusic = Global.getCurrMusicList().get(Global.getCurrentMusicIndex());
-            lyricList.clear();
-            lyricList.addAll(LrcUtil.getLyrics(currMusic.getPath()));
-            lyricListView.changeData(lyricList, 0,lyricListView.getHeight());
-        }
-        boolean found = false;
-        int progress = mb.getProgress() / 1000;
-        if(lyricList.size()< 5){
-            lyricListView.changeData(lyricList,0,lyricListView.getHeight());
-        } else {
-            for (int i = 0; i < lyricList.size(); i++) {
-                if (progress == lyricList.get(i).getBeginTime()) {
-                    lyricListView.changeData(lyricList, i,lyricListView.getHeight());
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                for (int i = 0; i<lyricList.size()-1;i++) {
-                    if(progress > lyricList.get(i).getBeginTime() && progress<lyricList.get(i+1).getBeginTime()) {
-                        lyricListView.changeData(lyricList, i,lyricListView.getHeight());
-                        found = true;
+        playingMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (lastPlayMode) {
+                    case LOOP_MODE :
+                        playingMode.setImageResource(R.drawable.play_icn_shuffle);
+                        Toast.makeText(MusicMainActivity.this,"随机播放",Toast.LENGTH_SHORT).show();
+                        Global.setPlayingMode(RADOM_MODE);
+                        lastPlayMode = RADOM_MODE;
                         break;
-                    }
+                    case RADOM_MODE :
+                        playingMode.setImageResource(R.drawable.play_icn_one);
+                        Toast.makeText(MusicMainActivity.this,"单曲循环",Toast.LENGTH_SHORT).show();
+                        Global.setPlayingMode(SINGLE_MODE);
+                        lastPlayMode = SINGLE_MODE;
+                        break;
+                    case SINGLE_MODE :
+                        playingMode.setImageResource(R.drawable.play_icn_loop);
+                        Toast.makeText(MusicMainActivity.this,"列表循环",Toast.LENGTH_SHORT).show();
+                        Global.setPlayingMode(LOOP_MODE);
+                        lastPlayMode = LOOP_MODE;
+                        break;
                 }
             }
-            //如果还是没有发现则一定是歌词的最后一句了
-            if(!found){
-                lyricListView.changeData(lyricList,lyricList.size()-1,lyricListView.getHeight());
-            }
-        }
-        /*for (int i = 0; i < lyricList.size(); i++) {
-            if (progress / 1000 == lyricList.get(i).getBeginTime()) {
-                Log.i("YI", "ListViewHeight" + listView.getHeight());
-                Message message = new Message();
-                Bundle b = new Bundle();
-                if (i >= 4) {
-                    listView.setSelection(i-4);
-                } else {
-                    listView.setSelection(0);
-                }
-                lyricList.get(i).setIscenter(true);
-                Log.i("YI", "LRC的第" + i);
-            } else {
-                lyricList.get(i).setIscenter(false);
-            }
-            lyricAdapter.notifyDataSetChanged();
-        }*/
+        });
     }
+
+
+
+
 
 
     @Override
@@ -198,10 +180,40 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
             service.putExtra("action",ActionName);
             startService(service);
     }
+
+
 //分享歌曲，应该单独拿出来，应为不仅仅这一个地方会用到
     private void shareMusic() {
-        Log.i("YI","share() is called");
-    }
+            ShareSDK.initSDK(this);
+            OnekeyShare oks = new OnekeyShare();
+            //关闭sso授权
+            oks.disableSSOWhenAuthorize();
+
+// 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
+            //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
+            // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
+            oks.setTitle(getString(R.string.share));
+            // titleUrl是标题的网络链接，仅在人人网和QQ空间使用
+            oks.setTitleUrl("http://sharesdk.cn");
+            // text是分享文本，所有平台都需要这个字段
+            oks.setText("我正在使用林悦音乐听" + Global.getCurrMusicList().get(Global.getCurrentMusicIndex()).getTitle());
+            // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
+            //oks.setImagePath("/sdcard/test.jpg");//确保SDcard下面存在此张图片
+            // url仅在微信（包括好友和朋友圈）中使用
+           // oks.setUrl("http://sharesdk.cn");
+            // comment是我对这条分享的评论，仅在人人网和QQ空间使用
+            //oks.setComment("我是测试评论文本");
+            // site是分享此内容的网站名称，仅在QQ空间使用
+            //oks.setSite(getString(R.string.app_name));
+            // siteUrl是分享此内容的网站地址，仅在QQ空间使用
+            //oks.setSiteUrl("http://sharesdk.cn");
+
+// 启动分享GUI
+            oks.show(this);
+        }
+
+
+
 
 
     //在activity　的oncreat是绑定服务。
@@ -244,6 +256,8 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
         this.bindService(service, sc, Context.BIND_AUTO_CREATE);//bind只发生一次
     }
 
+
+
     @Override
     protected void onPause() {
         isstop = true;
@@ -255,21 +269,59 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
         public void run() {
             musicTitle.setText(mb.getCurMusic().getTitle());
             musicArtist.setText(mb.getCurMusic().getArtist());
-           // curMusicTime.setText(getMusicTime(mb.getProgress()));
-            curMusicDuration.setText(getMusicTime(mb.getDuration()));
+            //curMusicDuration.setText(getMusicTime(mb.getDuration()));
             if(mb.isplaying()){
-                musicPlay.setBackgroundDrawable(getResources().getDrawable(R.drawable.play_btn_pause));
+                musicPlay.setImageDrawable(getResources().getDrawable(R.drawable.play_btn_pause));
             }else {
-                musicPlay.setBackgroundDrawable(getResources().getDrawable(R.drawable.play_btn_play));
+                musicPlay.setImageDrawable(getResources().getDrawable(R.drawable.play_btn_play));
             }
             updateLyric();
+            Global.updateSeekBarMax(progress,mb.getDuration());
+            Global.updateDuration(curMusicDuration,mb.getDuration());
         }
     };
+
+    public void updateLyric(){
+        //换歌曲的时候同时换歌词
+        if (!currMusic.equals(Global.getCurrMusicList().get(Global.getCurrentMusicIndex()))) {
+            currMusic = Global.getCurrMusicList().get(Global.getCurrentMusicIndex());
+            lyricList.clear();
+            lyricList.addAll(LrcUtil.getLyrics(currMusic.getPath()));
+            lyricListView.changeData(lyricList, 0,lyricListView.getHeight());
+        }
+        boolean found = false;
+        int progress = mb.getProgress() / 1000;
+        if(lyricList.size()< 5){
+            lyricListView.changeData(lyricList,0,lyricListView.getHeight());
+        } else {
+            for (int i = 0; i < lyricList.size(); i++) {
+                if (progress == lyricList.get(i).getBeginTime()) {
+                    lyricListView.changeData(lyricList, i,lyricListView.getHeight());
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                for (int i = 0; i<lyricList.size()-1;i++) {
+                    if(progress > lyricList.get(i).getBeginTime() && progress<lyricList.get(i+1).getBeginTime()) {
+                        lyricListView.changeData(lyricList, i,lyricListView.getHeight());
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            //如果还是没有发现则一定是歌词的最后一句了
+            if(!found){
+                lyricListView.changeData(lyricList,lyricList.size()-1,lyricListView.getHeight());
+                found =true;
+            }
+        }
+    }
 
     //SeekbarLinsen
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        curMusicTime.setText(getMusicTime(seekBar.getProgress()));
+        curMusicTime.setText(Global.getMusicTime(seekBar.getProgress()));
     }
 
     @Override
@@ -293,12 +345,14 @@ public class MusicMainActivity extends AppCompatActivity implements View.OnClick
        // currMusic = null;
        lyricListView = null;
         lyricList.clear();
-        mTimer.cancel();
+        if(null != mTimer) {
+            mTimer.cancel();
+        }
         handler.removeCallbacks(runnableUi);
-        releaseTextView(musicPlayPre);
-        releaseTextView(musicPlay);
-        releaseTextView(musicPlayNext);
-        releaseTextView(musicPlayList);
+        releaseImageView(musicPlayPre);
+        releaseImageView(musicPlay);
+        releaseImageView(musicPlayNext);
+        releaseImageView(musicPlayList);
         Drawable d = linearLayout.getBackground();
         if(d != null) {
            //Log.i("YI","release drawble");

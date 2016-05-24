@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         service.putExtra("action", PlayService.MUSICLIST_PLAY);
         service.putExtra("current", position);
         Log.i("LIN", "MAINLIST" + position);
-        service.putExtra("musicType", PlayService.LOCAL_MUSIC);
+        service.putExtra("musicType", Music.LOCAL_MUSIC);
         if(Global.getPlayService().getIntExtra("musicType",-1) == 1){
             Log.i("LIN","用的是一个实例 引用");
         }else{
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                     curmusic.setText(mb.getCurMusic().getTitle());
                 }
 
-                if (!duration.getText().equals(getMusicTime(mb.getDuration()))) {
+                if (!duration.getText().toString().equals(getMusicTime(mb.getDuration()))) {
                     progress.setMax(mb.getDuration());
                     duration.setText(getMusicTime(mb.getDuration()));
                     Log.i("LIN", duration.getText() + " ");
@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
     public void musicList(View view) {
         musicListWindow = new MusicListWindow(this);
-        musicListWindow.updateMusicList(Global.getCurrMusicList());
+        musicListWindow.updateMusicList();
         musicListWindow.showAtLocation(this.findViewById(R.id.musicMain_buttom),
                 Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,0);//vity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0); //
         WindowManager.LayoutParams params=this.getWindow().getAttributes();

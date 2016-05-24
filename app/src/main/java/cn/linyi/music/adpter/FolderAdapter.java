@@ -21,9 +21,10 @@ import cn.linyi.music.util.MusicUtil;
 
 /**
  * Created by linyi on 2016/5/10.
+ * 按文件夹分类音乐
  */
 public class FolderAdapter extends BaseAdapter{
-    private Map<String,List<Music>> maps;
+    private Map<String,List<Music>> maps;//将统一文件夹下的音乐 插入到map中做为 value值。
     private LayoutInflater inflater;
     private Context context;
     private ViewGroup.LayoutParams layoutParams;
@@ -67,6 +68,7 @@ public class FolderAdapter extends BaseAdapter{
         }
         TextView folderName = (TextView) convertView.findViewById(R.id.folder_name);
         TextView folderPath = (TextView) convertView.findViewById(R.id.folder_path);
+        ImageView stateView = (ImageView) convertView.findViewById(R.id.btn_folder_fun);
         folderName.setText(getKeyByPosition(position).toString());
         List<Music> list = (ArrayList<Music>)getValueByPosition(position);
         String path = list.get(0).getPath();
@@ -74,31 +76,13 @@ public class FolderAdapter extends BaseAdapter{
                 path.lastIndexOf(getKeyByPosition(position).toString())));
 
         LinearLayout linearView = (LinearLayout) convertView;
-        Log.i("NUO",linearView.getChildCount()+"view"+ folderName.getText().toString()+"1");
-        if(MusicUtil.getFolderName(Global.getCurrMusic()).equals(folderName.getText().toString())) {
-            ImageView imView = new ImageView(context);
-            if(layoutParams == null) {
-                layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT);
-            }
-            imView.setId(R.id.folder_isplaying);
-            imView.setBackgroundResource(R.drawable.small_red);
-            imView.setScaleType(ImageView.ScaleType.CENTER);
-            imView.setLayoutParams(layoutParams);
-            linearView.removeViewAt(2);
-            linearView.addView(imView,2);
-            Log.i("NUO",linearView.getChildCount()+"view"+ folderName.getText().toString()+"2");
-
+        Log.i("NUO",linearView.getChildCount()+"childCount"+ folderName.getText().toString()+"1"
+                +linearView.getChildAt(0).getId()+"0"+linearView.getChildAt(1).getId());
+        Log.i("NUOYI",MusicUtil.getFolderName(Global.getCurrMusic())+"currfolder   "+getKeyByPosition(position).toString()+"currname");
+        if(MusicUtil.getFolderName(Global.getCurrMusicList().get(Global.getCurrentMusicIndex())).equals(getKeyByPosition(position).toString())) {
+            stateView.setImageResource(R.drawable.small_red);
         } else {
-            if(linearView.getChildAt(2).getId() == R.id.folder_isplaying ) {
-               // linearView.getChildAt(2).setBackgroundResource();
-                linearView.removeViewAt(2);
-                ImageView imView = new ImageView(context);
-                imView.setBackgroundResource(R.drawable.scan_icn_folder);
-                imView.setId(R.id.btn_folder_fun);
-                linearView.addView(imView);
-                Log.i("NUO",linearView.getChildCount()+"view"+ folderName.getText().toString()+"3");
-            }
+            stateView.setImageResource(R.drawable.list_icn_more);
         }
         return convertView;
     }

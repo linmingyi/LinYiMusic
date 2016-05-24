@@ -13,13 +13,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import cn.linyi.music.adpter.MusicListAdapter;
+import cn.linyi.music.bean.Music;
 import cn.linyi.music.service.PlayService;
 import cn.linyi.music.util.Global;
 
 /**
  * Created by linyi on 2016/5/11.
  */
-public class MusicListActivity extends FragmentActivity implements View.OnClickListener,AdapterView.OnItemClickListener {
+public class FolderMusicListActivity extends FragmentActivity implements View.OnClickListener,AdapterView.OnItemClickListener {
     private ImageButton btn_back;
     private TextView tv_folderName;
     private ListView musicList;
@@ -57,7 +58,7 @@ public class MusicListActivity extends FragmentActivity implements View.OnClickL
         service.putExtra("current", position);
         Log.i("LIN", "ITEMCLICK" + position);
         service.putExtra("action", PlayService.MUSICLIST_PLAY);
-        service.putExtra("musicType", PlayService.LOCAL_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
+        service.putExtra("musicType", Music.LOCAL_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
         startService(service);
     }
 }

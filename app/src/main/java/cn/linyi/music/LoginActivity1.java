@@ -90,7 +90,7 @@ public class LoginActivity1 extends AppCompatActivity {
                 @Override
                 public void run() {
                     try {
-                        HttpUtil httpUtil = new HttpUtil("http://"+ipAdress+":8080/musicServer/register");
+                        HttpUtil httpUtil = new HttpUtil("http://"+ipAdress+"/music/register");
                         Log.i("YI",httpUtil.toString());
                         HttpURLConnection conn = httpUtil.getConn();
                         //设置输入输出流

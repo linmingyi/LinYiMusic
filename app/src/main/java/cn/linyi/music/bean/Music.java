@@ -4,9 +4,25 @@ package cn.linyi.music.bean;
  * Created by linyi on 2016/3/22.
  */
 public class Music {
+    /*
+   *播放的音乐类型
+   * */
+    public static final int LOCAL_MUSIC = 1;
+    public static final int ONLINE_MUSIC = 2;
+
     private int id;
     private int position;
     private int progress;
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    private int duration;
 
 
 
@@ -20,6 +36,26 @@ public class Music {
     private String path;
     /*文件大小*/
     private long length;
+
+    private boolean isplaying;
+
+    private int musicType;
+
+    public int getMusicType() {
+        return musicType;
+    }
+
+    public void setMusicType(int musicType) {
+        this.musicType = musicType;
+    }
+
+    public boolean isplaying() {
+        return isplaying;
+    }
+
+    public void setIsplaying(boolean isplaying) {
+        this.isplaying = isplaying;
+    }
 
     public long getLength() {
         return length;

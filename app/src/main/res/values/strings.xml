@@ -1,3 +1,39 @@
 <resources>
     <string name="app_name">林诺音乐</string>
+    <string name="share">林诺音乐</string>
+    <string name="sql_createTable_music">create table IF NOT EXISTS music  (_id integer primary key autoincrement,title text,
+                album text,artist text,path text,progress integer,position integer)
+    </string>
+    <!--歌单表-->
+    <string name="sql_createTable_playlist">
+        CREATE TABLE IF NOT EXISTS playlist  (_id INTEGER PRIMARY KEY, name VARCHAR,
+        art INTEGER, track_count INTEGER, creator_id INTEGER, creator_nickname VARCHAR,
+        creator_avatar INTEGER, collected_count INTEGER, comment_count INTEGER, share_count INTEGER,
+        play_count INTEGER, desc VARCHAR, tags VARCHAR, update_time INTEGER,track_number_update_time INTEGER,
+        track_update_time INTEGER, special_type INTEGER, extra_info VARCHAR)
+    </string>
+    <!--播放历史表-->
+    <string name="sql_createTable_play_history">
+        CREATE TABLE IF NOT EXISTS play_history  (resource_id INTEGER, play_timestamp INTEGER, userid INTEGER,
+        resource_type INTEGER DEFAULT 1, resource_content VARCHAR,
+        UNIQUE(resource_id, resource_type, userid))
+    </string>
+    <!--本地音乐详情表-->
+    <string name="sql_createTable_local_track">
+        CREATE TABLE IF NOT EXISTS local_track  (id INTEGER PRIMARY KEY autoincrement, musicId INTEGER, match_id INTEGER,
+        real_match_id INTEGER, bitrate INTEGER, path VARCHAR NOT NULL UNIQUE, deleted INTEGER DEFAULT 0,
+        album_inner_art VARCHAR , last_modify_time INTEGER DEFAULT 0, artistname_py VARCHAR, albumname_py VARCHAR,
+        musicname_py VARCHAR, artistname VARCHAR, albumname VARCHAR, musicname VARCHAR, restore_by_user_or_not INTEGER DEFAULT 0)
+    </string>
+    <!--播放记录表-->
+    <string name="sql_createTable_track">
+        CREATE TABLE IF NOT EXISTS  track (id INTEGER PRIMARY KEY ,name VARCHAR, alias VARCHAR, artists VARCHAR, album_id INTEGER,
+        album_name VARCHAR, album_art INTEGER, mv_id INTEGER, duration INTEGER,hfile VARCHAR, mfile VARCHAR, lfile VARCHAR, audition VARCHAR,  version INTEGER, path VARCHAR, track_no INTEGER, track_cd VARCHAR,
+        extra_info VARCHAR, transnames VARCHAR, privilege_info VARCHAR)
+    </string>
+    <!--下载的音乐表详情-->
+    <string name="sql_createTable_download_track">
+        CREATE TABLE IF NOT EXISTS download_track  (_id INTEGER PRIMARY KEY, bitrate INTEGER, file_size INTEGER, state INTEGER, time INTEGER,
+        file_name VARCHAR, fail_reason INTEGER)
+    </string>
 </resources>

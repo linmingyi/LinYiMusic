@@ -9,8 +9,18 @@ public class User {
     private int id;
     private String uname;
     private String password;//(通过MD5加密)
+
+    public String getCollectPlaylist() {
+        return collectPlaylist;
+    }
+
+    public void setCollectPlaylist(String collectPlaylist) {
+        this.collectPlaylist = collectPlaylist;
+    }
+
     private int role;
     private String nickname;
+    private String collectPlaylist;//收藏的歌单id
     /**
      * 	只记录music的id 然后通过数据库来获取具体信息
      * 用户登录后第一次返回 随json返回，并在Android端建立数据表，保存起来

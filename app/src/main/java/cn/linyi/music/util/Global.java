@@ -5,10 +5,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.linyi.music.adpter.MusicListAdapter;
 import cn.linyi.music.bean.Music;
 import cn.linyi.music.bean.User;
 
@@ -21,10 +25,19 @@ import cn.linyi.music.bean.User;
  }
  */
 public class Global  {
-    private static List<Music> localMusicList;
-    private static List<Music> onlineMusicList;
-    private static List<Music> currMusicList;
-    private static List<Music> currFolderMusicList;
+    private static List<Music> localMusicList = new ArrayList<Music>();;
+    private static List<Music> onlineMusicList = new ArrayList<Music>();
+    private static List<Music> currMusicList = new ArrayList<Music>();
+    private static List<Music> currFolderMusicList = new ArrayList<Music>();
+    private static MusicListAdapter musicListAdapter;
+
+    public static MusicListAdapter getMusicListAdapter() {
+        return musicListAdapter;
+    }
+
+    public static void setMusicListAdapter(MusicListAdapter musicListAdapter) {
+        Global.musicListAdapter = musicListAdapter;
+    }
 
     public static List<Music> getCurrFolderMusicList() {
         return currFolderMusicList;
@@ -40,6 +53,16 @@ public class Global  {
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
     private static int MusicType;
+
+    public static int getPlayingMode() {
+        return PlayingMode;
+    }
+
+    public static void setPlayingMode(int playingMode) {
+        PlayingMode = playingMode;
+    }
+
+    private static int PlayingMode;
     private static int CurrentMusicIndex;
 
     public static int getCurrentMusicIndex() {
@@ -65,7 +88,6 @@ public class Global  {
     }
 
     public static void   setUser(User user) {
-
         Global.user = user;
     }
 
@@ -78,7 +100,6 @@ public class Global  {
     }
 
     public static void setCurrMusicList(List<Music> curr) {
-
         if(currMusicList != null) {
             if(!currMusicList.equals(curr)) {
                 currMusicList.clear();
@@ -123,5 +144,27 @@ public class Global  {
         playService = service;
     }
 
+
+
+    public static void updateSeekBarMax(SeekBar sb, int duration){
+        if(sb.getMax() != duration){
+            sb.setMax(duration);
+        }
+    }
+    public static void updateProgressBarMax(ProgressBar sb, int duration){
+        if(sb.getMax() != duration){
+            sb.setMax(duration);
+        }
+    }
+    public static void updateDuration(TextView curMusicDuration, int duration){
+        if(!curMusicDuration.getText().equals(getMusicTime(duration))) {
+            curMusicDuration.setText(getMusicTime(duration));
+        }
+    }
+
+    public static String getMusicTime(int musicTime) {
+        musicTime = musicTime / 1000;
+        return musicTime / 60 + ":" + musicTime % 60;
+    }
 
 }

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import cn.linyi.music.R;
 import cn.linyi.music.adpter.MusicListAdapter;
+import cn.linyi.music.bean.Music;
 import cn.linyi.music.service.PlayService;
 import cn.linyi.music.util.Global;
 
@@ -46,10 +47,11 @@ public class Fragment_LocalMusic extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+       Global.setCurrMusicList(Global.getLocalMusicList());
         service.putExtra("current", position);
         Log.i("LIN", "ITEMCLICK" + position);
         service.putExtra("action", PlayService.MUSICLIST_PLAY);
-        service.putExtra("musicType", PlayService.LOCAL_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
+        service.putExtra("musicType", Music.LOCAL_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
         getActivity().startService(service);
     }
 }

@@ -21,23 +21,24 @@ public class MusicUtil {
     /*获取上一次退时播放的歌曲*/
     public static Music getLastMusic(MusicDao musicDao) {
         Music m =  musicDao.findById(1);
-        if(m.getProgress()!=0){
+        if(m.getPath()!= null){
             Log.i("LIN", m.getPosition() + "position current");
-            return m;}
-        else return musicDao.findById(2);
+            return m;
+        }
+        else return null;
     }
 
     //获取当前sdcard内所有歌曲
     public static List<Music> findAllMp3(MusicDao musicDao) {
-        List<Music> list = new ArrayList<>();
+        List<Music> list;
         list = musicDao.findAll();
         //数据库创建时就已经插入了一条空记录用于保存歌曲信息
-        if(list.size()==0){
+   /*     if(list.size()==0){
             File root = new File(Environment.getExternalStorageDirectory().getPath());
             getDirectoryMp3(root, list);
             Log.i("LIN",list.size()+"listsize");
             musicDao.insertData(list);
-        }
+        }*/
         return list;
     }
 

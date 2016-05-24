@@ -82,9 +82,9 @@ public class LyricListView extends View {
 
     public void changeData(List<Lyric> list,int index,int height) {
         //height 为LyricListView 在实际布局中的高度。
-        Log.i("NUO","viewHeight:"+height+"传进来的值");
+      //  Log.i("NUO","viewHeight:"+height+"传进来的值");
         viewHeight = height;
-        Log.i("NUO","viewHeight:"+viewHeight+"传进来的值");
+       // Log.i("NUO","viewHeight:"+viewHeight+"传进来的值");
         currIndex = index;
         offSet = currIndex * -1*linHeight;
         offsetY =offSet;

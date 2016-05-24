@@ -3,9 +3,9 @@ package cn.linyi.music;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,7 +44,6 @@ import cn.linyi.music.util.MD5Util;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     private View view;
     private Activity activity;
-    private Context context;
     private LayoutInflater inflater;
     private EditText uname,password;
     private Button loginbtn;
@@ -53,12 +52,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText ipAdress;
     private Handler handler;
     private User user;
+    private  SharedPreferences sp;
+    public static final String NICKNAME = "nickName";
+    public static final String UID = "userId";
+    public static final String USER_COLLECT_PLAYLIST = "collectPlaylist";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_login);
         init();
+        sp = getSharedPreferences("userInfo",Context.MODE_PRIVATE);
     }
 
     private void init(){
@@ -75,11 +79,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void handleMessage(Message msg) {
                 if(msg.what == 1){
                     serUname.setText(user.getNickname());
-                    Log.i("YI","设置成功");
-                   Toast.makeText(LoginActivity.this,"登录成功",Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this,MainsActivity.class);
-                    startActivity(intent);
+                   // Log.i("NUO",user.getNickname());
+                    Toast.makeText(LoginActivity.this,"登录成功",Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString(NICKNAME,user.getNickname());
+                    editor.putInt(UID,user.getId());
+                    editor.putString(USER_COLLECT_PLAYLIST,user.getCollectPlaylist());
+                    editor.commit();
+                  /*  Intent intent = new Intent(LoginActivity.this,MainsActivity.class);
+                    startActivity(intent);*/
+                } else {
+                    if(msg.what == 0) {
+                        Toast.makeText(LoginActivity.this,"登录失败",Toast.LENGTH_SHORT).show();
+                    }
                 }
+
             }
         };
         //musicListView.setOnItemClickListener(this);
@@ -112,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void run() {
                 try {
-                    HttpUtil httpUtil = new HttpUtil("http://"+ip+":8080/musicServer/login");
+                    HttpUtil httpUtil = new HttpUtil("http://"+ip+"/music/login");
                     conn = httpUtil.getConn();
                     //设置输入输出流
                     conn.setDoInput(true);
@@ -137,7 +151,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     while((line = bfr.readLine()) != null) {
                         sb.append(line);
                     }
-
+                    Log.i("YI",sb.toString()+"result");
                     try {
                         JSONObject jsonObject = new JSONObject(new String(sb.toString().getBytes(),"UTF-8"));
                         if(jsonObject.getInt("resultCode") == 1) {
@@ -150,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Log.i("YI", user.getNickname() + "  \n\t" + user.getUname() + "\n\t" + user.getFavorMusic());
                             handler.sendEmptyMessage(1);
                         }else {
-                            Toast.makeText(context,"登录失败，请重新登录或注册新账号",Toast.LENGTH_LONG).show();
+                            handler.sendEmptyMessage(0);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

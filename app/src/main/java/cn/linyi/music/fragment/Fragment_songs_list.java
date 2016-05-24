@@ -43,7 +43,7 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
     private List<Music> onlineMusicList;
     private ListView listView;
     private Intent service;
-    public static final String stringUrl ="http://linyinuo.site/music/list.html";
+    public static final String stringUrl ="http://linyinuo.site/music/musicList?action=2";/*"http://linyinuo.site/music/list"*/;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_songs_list,container,false);
@@ -58,10 +58,11 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Global.setCurrMusicList(onlineMusicList);
         service.putExtra("current", position);
         Log.i("LIN", "ITEMCLICK" + position);
         service.putExtra("action", PlayService.MUSICLIST_PLAY);
-        service.putExtra("musicType", PlayService.ONLINE_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
+        service.putExtra("musicType", Music.ONLINE_MUSIC);//歌曲类型在点击是要记得修改 OK！！！
         activity.startService(service);
     }
 
@@ -84,6 +85,7 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
         protected void onPostExecute(String result) {
             onlineMusicList = parseJsonMulti(result);
             Global.setOnlineMusicList(onlineMusicList);//网络歌单更新
+            Log.i("NUO",Global.getOnlineMusicList().size()+"online list .size");
             List<String> strs = new ArrayList<String>();
             for(Music m : onlineMusicList) {
                 strs.add(m.getTitle());
@@ -109,14 +111,13 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
             // Starts the query
             conn.connect();
             int response = conn.getResponseCode();
-            Log.d("Fragment_songs", "The response is: " + response);
-            Log.i("LIN", response+"jhkjh1");
+            Log.i("NUO", "The response is: " + response);
             is = conn.getInputStream();
             String fileName = myurl.substring(myurl.lastIndexOf("/")+1);
 
             // Convert the InputStream into a strings
             String contentAsString = HttpUtil.inputStreamToString(is);
-            Log.i("LIN",contentAsString);
+            Log.i("NUO",contentAsString);
             return contentAsString;
             // Makes sure that the InputStream is closed after the app is
             // finished using it.
@@ -141,22 +142,24 @@ public class Fragment_songs_list extends Fragment  implements AdapterView.OnItem
             out.write(buffer);
         }
         out.close();
-        return new String(stringBuffer);
+        return stringBuffer.toString();
     }
 
     private List<Music>  parseJsonMulti(String strResult) {
         String s = "";
         List<Music> musics = new ArrayList<Music>();
         try {
-            JSONArray jsonObjs = new JSONObject(strResult).getJSONArray("music");
+            JSONArray jsonObjs = new JSONObject(strResult).getJSONArray("musicList");
             for (int i = 0; i < jsonObjs.length(); i++) {
                 JSONObject jsonObject = (JSONObject)jsonObjs.get(i);
-                String name = jsonObject.getString("name");
+                String name = jsonObject.getString("title");
                 String path = jsonObject.getString("path");
-                s += "name: "+ name + "path: " + path+"\n";
+                String artist = jsonObject.getString("artist");
+                s += "title: "+ name + "path: " + path+"\n";
                 Music musicInf = new Music();
                 musicInf.setTitle(name);
                 musicInf.setPath(path);
+                musicInf.setArtist(artist);
                 musics.add(musicInf);
             }
             Log.i("LIN","JSON           "+s);
